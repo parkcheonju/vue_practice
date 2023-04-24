@@ -1,34 +1,17 @@
 {
   "todos": [
     {
-      "subject": "천혜향주문",
-      "completed": true,
-      "id": 1
-    },
-    {
-      "subject": "뷰복습하기",
-      "completed": false,
+      "subject": "뷰 복습 해야지..",
       "id": 2
     },
     {
-      "subject": "리액트프로젝트 유지보수",
-      "completed": false,
+      "subject": "리액트프로젝트 유지보수 안하기",
       "id": 3
     },
     {
       "subject": "이력서 페이지 만들기",
       "completed": false,
       "id": 4
-    },
-    {
-      "subject": "입사지원하기",
-      "completed": false,
-      "id": 5
-    },
-    {
-      "subject": "망고패드갈기",
-      "completed": true,
-      "id": 6
     },
     {
       "subject": "망고랑 얘기하기",
