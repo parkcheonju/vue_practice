@@ -21,14 +21,21 @@
     <button class="btn btn-primary" :disabled="!todoUpdate">저장</button>
     <button class="btn btn-outline-dark ms-2" @click="moveToTodoListPage">취소</button>
   </form>
+  <Toast v-if="showToast" :message="toastMessage" :type="toastAlertType" /> 
+  <div id="mango">😁강아지</div>
 </template>
 
 <script>
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import _ from "lodash";
+import Toast from "@/components/Toast.vue";
+
 export default {
+  components: {
+    Toast,
+  },
   setup() {
     const originalTodo = ref(null);
     const route = useRoute();
@@ -37,6 +44,42 @@ export default {
     const loading = ref(true);
     const todoId = route.params.id;
     const url = "http://localhost:8080/todos/";
+    
+    const showToast = ref(false);
+    const toastMessage = ref("");
+    const toastAlertType = ref("");
+    const timeout = ref(null);
+
+    onMounted(() => {
+      clearTimeout(timeout.value);
+    });
+
+    //   onBeforeMount(() => {
+    //     console.log(document.querySelector("#mango"));
+    //   });
+    // console.log("연결");
+    // onUpdated(() => {
+    //   console.log("업데이트 완료");
+    // });
+    // onBeforeUpdate(() => {
+    //   console.log("업데이트 직전");
+    // });
+    // onUnmounted(()=>{
+    //   console.log("죽음")
+    // });
+
+    const triggerToast = (msg, type = "info") => {
+      toastMessage.value = msg;
+      toastAlertType.value = type;
+      showToast.value = true;
+      timeout.value = setTimeout(() => {
+        console.log("움직임 확인👻");
+        toastMessage.value = "";
+        toastAlertType.value = "";
+        showToast.value = false;
+      }, 8000);
+    };
+
     const todoUpdate = computed(() => {
       return !_.isEqual(todo.value, originalTodo.value);
     });
@@ -51,11 +94,12 @@ export default {
         })
         .then((res) => {
           originalTodo.value = { ...res.data };
-
+          triggerToast("등록이 완료되었습니다", "info");
           // console.log("onSave🙂", res);
         })
         .catch((err) => {
           console.error(err);
+          triggerToast("일시적으로 장애가 오류가 발생하였습니다. 잠시 후 다시 이용해 주세요", "danger");
         });
     };
 
@@ -86,6 +130,11 @@ export default {
       onSave,
       todoUpdate,
       toggleTodoStatus,
+      Toast,
+      showToast,
+      triggerToast,
+      toastMessage,
+      toastAlertType,
     };
   },
 };

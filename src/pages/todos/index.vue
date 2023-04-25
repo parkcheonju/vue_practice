@@ -22,18 +22,24 @@
       </ul>
     </nav>
   </div>
+  <Toast v-if="showToast" :message="toastMessage" :type="toastAlertType" />
+  <Toast />
 </template>
 
 <script>
 import { ref, computed, watch } from "vue";
 import axios from "axios";
 import TodoBasicForm from "@/components/TodoBasicForm.vue";
-import TodoList from "@/components/TodoList.vue"; 
+import TodoList from "@/components/TodoList.vue";
+import { useToast } from "@/composables/toast";
+import { Toast } from "@/components/Toast";
 
 export default {
   components: {
     TodoBasicForm,
     TodoList,
+    Toast,
+    useToast,
   },
   setup() {
     const error = ref("");
@@ -42,45 +48,27 @@ export default {
     const totalTodos = ref(0);
     const limit = 5;
     const currentPage = ref(1);
+    const { showToast, toastMessage, toastAlertType, triggerToast, timeout } = useToast();
 
     const numberOfPages = computed(() => {
       return Math.ceil(totalTodos.value / limit);
     });
 
-    /*    watch(
-      () => {
-        return searchText.value;
-      },
-      (current, prev) => {
-        console.log(current, prev);
-      }
-    ); */
-
-    let timeout = null;
+    let time = null;
 
     /* 변하는값 추적 */
     watch(searchText, () => {
-      timeout = setTimeout(() => {
+      time = setTimeout(() => {
         getTodos(1);
       }, 2000);
     });
 
     const searchTextTodos = () => {
-      clearTimeout(timeout);
+      clearTimeout(time);
     };
 
-    console.log(searchText.value);
+    // console.log(searchText.value);
 
-    /*    const filteredTodos = computed(() => {
-      console.log("todo:", searchText);
-      if (searchText.value) {
-        return todos.value.filter((todo) => {
-          console.log("todo:", todo, todos.value);
-          return todo.subject.includes(searchText.value);
-        });
-      }
-      return todos.value;
-    }); */
     const todos = ref([]);
     const getTodos = (page = currentPage.value) => {
       currentPage.value = page;
@@ -91,10 +79,12 @@ export default {
           console.log("성공", res.headers["x-total-count"]);
           totalTodos.value = res.headers["x-total-count"];
           todos.value = res.data;
+          triggerToast("목록가져옴", "info");
         })
         .catch((err) => {
           console.error(err);
           error.value = "일시적인 오류가 발생하였습니다. 잠시후 이용해주세요.";
+          triggerToast("목록가져옴", "info");
         });
     };
     getTodos();
@@ -129,14 +119,14 @@ export default {
         });
     };
     const toggleTodo = (index, checked) => {
-      console.log("checked😉", checked);
+      console.log("checked😪", checked);
       const id = index;
       axios
-        .patch("http://localhost:8080/todos/" + id, { completed: checked, })
+        .patch("http://localhost:8080/todos/" + id, { completed: checked })
         .then((res) => {
-          // todos.value[id].completed = checked;
           getTodos();
-          console.log("then😪",todos.value[id].completed);
+          // todos.value[id].completed = checked;
+          // console.log("🤨then", todos.value[id]?.completed);
         })
         .catch((err) => {
           console.error(err);
@@ -158,6 +148,11 @@ export default {
       limit,
       getTodos,
       searchTextTodos,
+      triggerToast,
+      showToast,
+      toastMessage,
+      toastAlertType,
+      timeout,
     };
   },
 };
