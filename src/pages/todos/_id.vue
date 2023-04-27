@@ -1,5 +1,4 @@
 <template>
-  <h1>_id.vue</h1>
   <TodoForm :editing="true" />
 </template>
 

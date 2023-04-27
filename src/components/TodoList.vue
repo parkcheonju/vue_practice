@@ -11,14 +11,19 @@
       </div>
       <div>
         <!-- stop추가 버블링 막음. -->
-        <button class="btn btn-danger btn-sm" @click.stop="deleteTodo(i.id)">삭제</button>
+        <!-- <button class="btn btn-danger btn-sm" @click.stop="deleteTodo(i.id)">삭제</button> -->
+        <button class="btn btn-danger btn-sm" @click.stop="openModal(i.id)">삭제</button>
+        <!-- Modal.vue 에서 삭제하기 버튼 클릭시 호출 deleteTodo(i.id) -->
       </div>
     </div>
   </div>
+  <Modal v-if="showModal" @close="closeModal" @delete="deleteModal" />
 </template>
 
 <script>
+import { ref } from "vue";
 import { useRouter } from "vue-router";
+import Modal from "@/components/Modal.vue";
 export default {
   props: {
     todos: {
@@ -26,9 +31,14 @@ export default {
       required: true,
     },
   },
+  components: {
+    Modal,
+  },
   emits: ["toggle-todo", "deleteTodo"],
   setup(props, { emit }) {
     const router = useRouter();
+    let showModal = ref(false);
+    let todoDeleteId = ref(null);
     const toggleTodo = (index, event) => {
       console.log("😀id, checked:", index, event.target.checked);
       emit("toggle-todo", index, event.target.checked);
@@ -47,10 +57,22 @@ export default {
         },
       });
     };
+    const openModal = (id) => {
+      todoDeleteId.value = id;
+      showModal.value = true;
+    };
+    const closeModal = () => {
+      todoDeleteId.value = null;
+      showModal.value = false;
+    };
 
-    return { toggleTodo, deleteTodo, moveToPage };
+    return { toggleTodo, deleteTodo, moveToPage, showModal, openModal, closeModal };
   },
 };
 </script>
 
-<style></style>
+<style>
+.form-check-label {
+  cursor: pointer;
+}
+</style>
